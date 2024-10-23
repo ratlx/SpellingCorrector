@@ -1,3 +1,7 @@
+//
+// cloned from https://github.com/felipefarinon/spellingcorrector
+// modified by 小火锅 on 24-10-23.
+//
 #include <algorithm>
 #include <fstream>
 #include <iostream>

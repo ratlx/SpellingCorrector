@@ -1,13 +1,7 @@
-/*
-* SpellingCorrector.h
-*
-* Version: 1.5
-* Author: Felipe Farinon <felipe.farinon@gmail.com>
-* URL: https://scarvenger.wordpress.com/
-*
-* Changelog:
-* 1.5: corrected transpositions in edits method and word load in load method.
-*/
+//
+// cloned from https://github.com/felipefarinon/spellingcorrector
+// modified by 小火锅 on 24-10-23.
+//
 
 #ifndef SPELLINGCORRECTOR_H_
 #define SPELLINGCORRECTOR_H_
