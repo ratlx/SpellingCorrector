@@ -12,4 +12,4 @@ add_executable(spell_corrector main.cpp
         SpellingCorrectorForZhCN.h
 )
 
-#target_compile_options(spell_corrector PRIVATE -O3)
+target_compile_options(spell_corrector PRIVATE -O3)
