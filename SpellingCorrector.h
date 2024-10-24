@@ -13,22 +13,25 @@
 class SpellingCorrector
 {
 public:
-    using Vector = std::vector<std::string>;
+    using wordList = std::vector<std::string>;
     using Dictionary =  std::unordered_map<std::string, int>;
     using oppDictionary = std::map<int, std::string, std::greater<>> ;
 
     int getFrequence(const std::string& word);
-    void addWord(const std::string& word);
     void load(const std::string& filename);
-    std::string correct(const std::string& word);
+    std::string correct(const std::string& word,bool del = true,
+        bool trpos = true, bool alt = true, bool ins = true);
+
+protected:
+    void add_or_count_word(const std::string& word);
+
 private:
 
     Dictionary dictionary;
 
-    void edits(const std::string& word, Vector& result);
-    void known(Vector& results, oppDictionary& candidates);
-
-
+    void edits(const std::string& word, wordList& result,bool del = true,
+        bool trpos = true, bool alt = true, bool ins = true);
+    void known(wordList& results, oppDictionary& candidates);
 };
 
 #endif

@@ -3,8 +3,9 @@
 //
 
 #include "SpellingCorrectorForZhCN.h"
-#include <fstream>
 #include "Pinyin.h"
+
+#include <fstream>
 #include <string>
 #include <locale>
 #include <codecvt>
@@ -14,63 +15,52 @@ using namespace std;
 using namespace WzhePinYin;
 
 // 创建一个宽字符转换器
-std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+#ifdef _WIN32
+// Windows uses UTF-16
+wstring_convert<codecvt_utf8_utf16<wchar_t>> converter;
+#else
+// Other systems use UTF-8
+wstring_convert<codecvt_utf8<wchar_t>> converter;
+#endif
 
-/*vector<string> division(string word, int num) {
-
-}*/
-
-bool SpellingCorrectorForZhCN::sortByZhCN_Dictionary(const std::string &w1, const std::string &w2){
-    return ZhCN_Dictionary[w1] < ZhCN_Dictionary[w2];
-}
 
 
 void SpellingCorrectorForZhCN::addWord_ZhCN(const std::string &word, const std::string &pinyin){
-    addWord(pinyin);
-    ZhCN_Dictionary[word]++;
+    add_or_count_word(pinyin);
+    if(!ZhCN_Dictionary.contains(word))
+        ZhCN_Dictionary[word] = 1;
     transform[pinyin].push_back(word);
     opptransform[word].push_back(pinyin);
 }
 
 void SpellingCorrectorForZhCN::countWord(const std::string &word){
     for(auto& pinyin : opptransform[word])
-        addWord(pinyin);
+        add_or_count_word(pinyin);
     ZhCN_Dictionary[word]++;
 }
 
-void SpellingCorrectorForZhCN::load(const std::string &filename1, const std::string &filename2) {
-    ifstream file(filename1.c_str(), ios_base::in);
+void SpellingCorrectorForZhCN::load(const std::string &filename) {
+
 
     string word, pinyin;
-    file >> word;
-    auto w_word = converter.from_bytes(word);
-    for(auto character : w_word) {
-        if(!Pinyin::IsChinese(character))
-            continue;
-        auto pinyin_t = Pinyin::GetPinyins(character);
-        bool first = true;
-        string word_t = converter.to_bytes(character);
-        for(auto& py : pinyin_t) {
-            if(first) {
-                addWord_ZhCN(word_t, py);
-                first = false;
-            }
-            else
-                opptransform[word_t].push_back(py);
-        }
-    }
-
-    file.close();
-    file.open(filename2.c_str(), ios_base::in);
+    wstring w_word;
+    ifstream file(filename.c_str(), ios_base::in);
 
     while(file >> word >> pinyin) {
         bool daily_word = true;
-        Vector w_py  {""};       //检测是否是常用字
+        wordList w_py  {""};       //检测是否是常用字
         w_word = converter.from_bytes(word);
         for(auto wch : w_word) {
             if(!Pinyin::IsChinese(wch)) {
                 daily_word = false;
-                break;
+                continue;
+            }
+            string word_t = converter.to_bytes(wch);
+            if(!opptransform.contains(word_t)) {
+                auto pinyin_t = Pinyin::GetPinyins(wch);
+                for(auto& py : pinyin_t) {
+                    addWord_ZhCN(word_t, py);
+                }
             }
         }
         if(daily_word) {
@@ -97,7 +87,7 @@ void SpellingCorrectorForZhCN::train(const std::string &filename){
                 word.erase(word.begin(), word.begin() + 3);
             string word_t = word;
             while(word_t.size() > 3) {
-                if(ZhCN_Dictionary.count(word_t))
+                if(ZhCN_Dictionary.contains(word_t))
                     countWord(word_t);
                 word_t.erase(word_t.begin(), word_t.begin() + 3);
             }
@@ -105,38 +95,65 @@ void SpellingCorrectorForZhCN::train(const std::string &filename){
     }
 }
 
-std::string SpellingCorrectorForZhCN::ZhCorrect(const std::string &word){
-    Vector div, res;
+pair<string, string> SpellingCorrectorForZhCN::ZhCorrect(const std::string &word){
+    auto sortByZhCN_Dictionary = [this](const std::string &w1, const std::string &w2) {
+        return ZhCN_Dictionary[w1] < ZhCN_Dictionary[w2];
+    };
+    wordList div, res_1;
     int num = 1;
     for(; num <= word.length(); num++) {
         div.resize(num);
-        res.resize(num);
-        int s_len = word.length() / num;
-        int remainder = word.length() % num;  // 处理余数部分
-        for (int i = 0; i < num; ++i) {
-            int start = i * s_len + min(i, remainder);
-            int len = s_len + (i < remainder ? 1 : 0);
+        res_1.resize(num);
+        auto s_len = word.length() / num;
+        auto remainder = word.length() % num;  // 处理余数部分
+        for (unsigned long i = 0; i < num; ++i) {
+            auto start = i * s_len + min(i, remainder);
+            auto len = s_len + (i < remainder ? 1 : 0);
 
             div[i] = word.substr(start, len);  // 截取字符串
         }
         int cnt = 0;
         for(; cnt < num; cnt++) {
-            res[cnt] = correct(div[cnt]);
-            if(res[cnt].empty())
+            res_1[cnt] = correct(div[cnt], false, true, true, true);
+            if(res_1[cnt].empty())
                 break;
         }
         if(cnt == num)
             break;
     }
-    if(num == word.length() + 1)
-        return "";
-    string ans;
-    for(auto& r : res) {
-        ans += *max_element(transform[r].begin(), transform[r].end(),
-                    [this](const std::string &w1, const std::string &w2) {
-                        return this->sortByZhCN_Dictionary(w1, w2);
-                    });
+    string ans_1;
+    if(num != word.length() + 1)
+        for(auto& r : res_1)
+            ans_1 += *max_element(transform[r].begin(), transform[r].end(), sortByZhCN_Dictionary);
+
+
+    string candidates, ans_2, word_t, res_2, tmp;
+    int c_num_2 = 0;
+    for(auto ch : word) {
+        word_t += ch;
+        auto res_t = correct(word_t, false, true, true, true);
+        if(res_t.empty())
+            res_t = correct(word_t, true, true, true, true);
+        if(res_t == res_2)
+            tmp += ch;
+        else {
+            if(!res_t.empty())
+                tmp.clear();
+
+            res_2 = res_t;
+        }
+        if(res_2.empty()) {
+            ans_2 += candidates;
+            c_num_2++;
+            candidates.clear();
+            word_t = tmp + ch;
+            tmp.clear();
+            continue;
+        }
+        candidates = *max_element(transform[res_2].begin(), transform[res_2].end(), sortByZhCN_Dictionary);
     }
-    return ans;
+    if(!candidates.empty())
+        ans_2 += candidates;
+    return {ans_1, ans_2};
 }
 

@@ -49,15 +49,16 @@ void SpellingCorrector::load(const std::string &filename) {
     }
 }
 
-string SpellingCorrector::correct(const std::string &word) {
-    Vector result;
+string SpellingCorrector::correct(const std::string &word,
+    bool del, bool trpos, bool alt, bool ins) {
+    wordList result;
     oppDictionary candidates;
 
     if (dictionary.count(word)) {
         return word;
     }
 
-    edits(word, result);
+    edits(word, result, del, trpos, alt, ins);
     known(result, candidates);
 
     if (!candidates.empty()) {
@@ -66,9 +67,9 @@ string SpellingCorrector::correct(const std::string &word) {
     }
 
     for (auto& str : result) {
-        Vector subResult;
+        wordList subResult;
 
-        edits(str, subResult);
+        edits(str, subResult, del, trpos, alt, ins);
         known(subResult, candidates);
     }
 
@@ -80,7 +81,7 @@ string SpellingCorrector::correct(const std::string &word) {
     return "";
 }
 
-void SpellingCorrector::known(Vector &results, oppDictionary &candidates) {
+void SpellingCorrector::known(wordList &results, oppDictionary &candidates) {
     auto end = dictionary.end();
 
     for (auto& word : results) {
@@ -93,17 +94,23 @@ void SpellingCorrector::known(Vector &results, oppDictionary &candidates) {
     }
 }
 
-void SpellingCorrector::edits(const std::string &word, Vector &result) {
-    for (string::size_type i = 0; i < word.size(); i++)
-        result.emplace_back(word.substr(0, i) + word.substr(i + 1)); // deletions
-    for (string::size_type i = 0; i < word.size() - 1; i++)
-        result.emplace_back(word.substr(0, i) + word[i + 1] + word[i] + word.substr(i + 2)); // transposition
+void SpellingCorrector::edits(const std::string &word, wordList &result,
+    bool del, bool trpos, bool alt, bool ins) {
+    string::size_type start = del ? 0 : 1;
+    if(del)
+        for (string::size_type i = start; i < word.size(); i++)
+            result.emplace_back(word.substr(0, i) + word.substr(i + 1)); // deletions
+    if(trpos)
+        for (string::size_type i = start; i < word.size() - 1; i++)
+            result.emplace_back(word.substr(0, i) + word[i + 1] + word[i] + word.substr(i + 2)); // transposition
 
     for (char j = 'a'; j <= 'z'; ++j) {
-        for (string::size_type i = 0; i < word.size(); i++)
-            result.emplace_back(word.substr(0, i) + j + word.substr(i + 1)); // alterations
-        for (string::size_type i = 0; i < word.size() + 1; i++)
-            result.emplace_back(word.substr(0, i) + j + word.substr(i)); // insertion
+        if(alt)
+            for (string::size_type i = start; i < word.size(); i++)
+                result.emplace_back(word.substr(0, i) + j + word.substr(i + 1)); // alterations
+        if(ins)
+            for (string::size_type i = start; i < word.size() + 1; i++)
+                result.emplace_back(word.substr(0, i) + j + word.substr(i)); // insertion
     }
 }
 
@@ -113,7 +120,7 @@ int SpellingCorrector::getFrequence(const std::string &word) {
     return 0;
 }
 
-void SpellingCorrector::addWord(const std::string &word) {
+void SpellingCorrector::add_or_count_word(const std::string &word) {
     dictionary[word]++;
 }
 

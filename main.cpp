@@ -5,9 +5,13 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include "Pinyin.h"
 #include "SpellingCorrector.h"
 #include "SpellingCorrectorForZhCN.h"
+
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 using namespace std;
 
@@ -45,6 +49,24 @@ void singleRequest(SpellingCorrector& corrector) {
     }
 }
 
+void singleRequest_ZH(SpellingCorrectorForZhCN& corrector) {
+    string request;
+    while (request != "tuichu")
+    {
+        cout << "输入拼音\n";
+        cin >> request;
+
+        auto ans(corrector.ZhCorrect(request));
+
+        if (!ans.first.empty() && !ans.second.empty())
+            if(ans.first != ans.second)
+                cout << "你的意思是 “" << ans.first << "” 还是 “" << ans.second << "” ?\n";
+            else
+                cout << "你的意思是 “" << (ans.first.empty() ? ans.second : ans.first) << "” ?\n";
+        else
+            cout << "555啥也找不到呢 :(\n";
+    }
+}
 void spellTest(SpellingCorrector& corrector, const string& filename, bool verbose = false) {
     ifstream ipf(filename.c_str(), ios::in);
 
@@ -90,12 +112,16 @@ void spellTest(SpellingCorrector& corrector, const string& filename, bool verbos
 
 int main()
 {
+#ifdef _WIN32
+    SetConsoleOutputCP(CP_UTF8);
+#endif
     //SpellingCorrector corrector;
 
     SpellingCorrectorForZhCN ZHcorrector;
-    ZHcorrector.load("test_file/character.txt", "test_file/word.txt");
-    ZHcorrector.train("test_file/test.zh");
-    cout << ZHcorrector.ZhCorrect("zenmeban");
+    ZHcorrector.load("test_file/word.txt");
+    ZHcorrector.train("test_file/train.zh");
+    //cout << ZHcorrector.ZhCorrect("ysqidong");
+    singleRequest_ZH(ZHcorrector);
     //corrector.load("big.txt");
 
     /*ofstream opf("out.txt", ios::out);
