@@ -21,8 +21,6 @@ public:
     void load(const std::string& filename);
     std::string correct(const std::string& word,bool del = true,
         bool trpos = true, bool alt = true, bool ins = true);
-
-protected:
     void add_or_count_word(const std::string& word);
 
 private:

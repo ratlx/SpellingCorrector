@@ -29,12 +29,12 @@ void SpellingCorrectorForZhCN::addWord_ZhCN(const std::string &word, const std::
     add_or_count_word(pinyin);
     if(!ZhCN_Dictionary.contains(word))
         ZhCN_Dictionary[word] = 1;
-    transform[pinyin].push_back(word);
-    opptransform[word].push_back(pinyin);
+    pinyinToChinese[pinyin].push_back(word);
+    chineseToPinyin[word].push_back(pinyin);
 }
 
 void SpellingCorrectorForZhCN::countWord(const std::string &word){
-    for(auto& pinyin : opptransform[word])
+    for(auto& pinyin : chineseToPinyin[word])
         add_or_count_word(pinyin);
     ZhCN_Dictionary[word]++;
 }
@@ -56,7 +56,7 @@ void SpellingCorrectorForZhCN::load(const std::string &filename) {
                 continue;
             }
             string word_t = converter.to_bytes(wch);
-            if(!opptransform.contains(word_t)) {
+            if(!chineseToPinyin.contains(word_t)) {
                 auto pinyin_t = Pinyin::GetPinyins(wch);
                 for(auto& py : pinyin_t) {
                     addWord_ZhCN(word_t, py);
@@ -106,7 +106,7 @@ pair<string, string> SpellingCorrectorForZhCN::ZhCorrect(const std::string &word
         res_1.resize(num);
         auto s_len = word.length() / num;
         auto remainder = word.length() % num;  // 处理余数部分
-        for (unsigned long i = 0; i < num; ++i) {
+        for (string::size_type i = 0; i < num; ++i) {
             auto start = i * s_len + min(i, remainder);
             auto len = s_len + (i < remainder ? 1 : 0);
 
@@ -124,7 +124,7 @@ pair<string, string> SpellingCorrectorForZhCN::ZhCorrect(const std::string &word
     string ans_1;
     if(num != word.length() + 1)
         for(auto& r : res_1)
-            ans_1 += *max_element(transform[r].begin(), transform[r].end(), sortByZhCN_Dictionary);
+            ans_1 += *max_element(pinyinToChinese[r].begin(), pinyinToChinese[r].end(), sortByZhCN_Dictionary);
 
 
     string candidates, ans_2, word_t, res_2, tmp;
@@ -150,7 +150,7 @@ pair<string, string> SpellingCorrectorForZhCN::ZhCorrect(const std::string &word
             tmp.clear();
             continue;
         }
-        candidates = *max_element(transform[res_2].begin(), transform[res_2].end(), sortByZhCN_Dictionary);
+        candidates = *max_element(pinyinToChinese[res_2].begin(), pinyinToChinese[res_2].end(), sortByZhCN_Dictionary);
     }
     if(!candidates.empty())
         ans_2 += candidates;

@@ -126,9 +126,9 @@ int main()
 
     /*ofstream opf("out.txt", ios::out);
     for(auto& i : ZHcorrector.ZhCN_Dictionary) {
-        if(i.second > 1 && ZHcorrector.opptransform[i.first].size() > 1) {
+        if(i.second > 1 && ZHcorrector.chineseToPinyin[i.first].size() > 1) {
             opf << i.first << ' '<< i.second << endl;
-            for(auto& j : ZHcorrector.opptransform[i.first])
+            for(auto& j : ZHcorrector.chineseToPinyin[i.first])
                 opf << j << endl;
         }
     }*/

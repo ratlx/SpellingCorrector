@@ -12,9 +12,8 @@
 #include "SpellingCorrector.h"
 
 
-class SpellingCorrectorForZhCN :protected SpellingCorrector{
+class SpellingCorrectorForZhCN :private SpellingCorrector{
 public:
-    //int getFrequence(const std::string& word);
     void load(const std::string& word);
     std::pair<std::string, std::string> ZhCorrect(const std::string& word);
     void train(const std::string& filename);
@@ -22,9 +21,9 @@ public:
     void countWord(const std::string& word);
 
     using Transform = std::unordered_map<std::string, wordList>;
-
-    Transform transform;        //拼音--->>中文
-    Transform opptransform;     //中文--->>拼音
+private:
+    Transform pinyinToChinese;        //拼音--->>中文
+    Transform chineseToPinyin;     //中文--->>拼音
     Dictionary ZhCN_Dictionary;
 
 };
