@@ -96,6 +96,7 @@ void SpellingCorrector::known(wordList &results, oppDictionary &candidates) {
 
 void SpellingCorrector::edits(const std::string &word, wordList &result,
     bool del, bool trpos, bool alt, bool ins) {
+    if(word.empty()) return;
     string::size_type start = del ? 0 : 1;
     if(del)
         for (string::size_type i = start; i < word.size(); i++)
