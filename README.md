@@ -15,11 +15,13 @@
 具体实现
 
 1.SpellingCorrector类
-英文拼写检查器，主要做了对Peter Norvig提出的拼写检查器的c++重构。重构借鉴了https://github.com/felipefarinon/spellingcorrector，在此基础上做了性能上的优化，其他些许改造。
+英文拼写检查器，主要做了对Peter Norvig提出的拼写检查器的c++重构。重构借鉴了https://github.com/felipefarinon/spellingcorrector
+，在此基础上做了性能上的优化，其他些许改造。
 
 2.Pinyin类
 
-来源于https://github.com/wzhe/GetPinyin，主要作用是识别中文，获取中文拼音。
+来源于https://github.com/wzhe/GetPinyin
+，主要作用是识别中文，获取中文拼音。
 
 3.SpellingCorrectorForZhCN类
 
