@@ -1,15 +1,16 @@
 # 基于贝叶斯算法的中英双文拼写检查器
 
 启发、借鉴于http://norvig.com/spell-correct.html
+
 中文译文：https://blog.csdn.net/bobten2008/article/details/5478516
+
 如果对于具体实现感兴趣，建议先阅读上述材料。
 
 兼容windows，macos，linux平台
 
 结果展示
 
-<img width="361" alt="image" src="https://github.com/user-attachments/assets/b7db3079-96dd-4746-a04d-d8a907ec7063">
-
+<img width="361" alt="image" src="https://github.com/user-attachments/assets/b7db3079-96dd-4746-a04d-d8a907ec7063"><img width="286" alt="image" src="https://github.com/user-attachments/assets/7e6d7d90-651e-4958-8c56-52690212d898">
 
 具体实现
 
@@ -32,7 +33,7 @@
 
 3.并没有实现上下文的联想功能，也是一个可以重点改进的地方
 
-4.
+4.对于实验结果缺少量化分析
 
 
 
