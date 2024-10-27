@@ -58,8 +58,8 @@ void singleRequest_ZH(SpellingCorrectorForZhCN& corrector) {
 
         auto ans(corrector.ZhCorrect(request));
 
-        if (!ans.first.empty() && !ans.second.empty())
-            if(ans.first != ans.second)
+        if (!ans.first.empty() || !ans.second.empty())
+            if(!ans.first.empty() && (ans.first != ans.second))
                 cout << "你的意思是 “" << ans.first << "” 还是 “" << ans.second << "” ?\n";
             else
                 cout << "你的意思是 “" << (ans.first.empty() ? ans.second : ans.first) << "” ?\n";
@@ -76,19 +76,20 @@ void spellTest(SpellingCorrector& corrector, const string& filename, bool verbos
     }
 
     auto start = chrono::high_resolution_clock::now();
-    int sum = 0, right_s = 0, unknown = 0;
+    int r_sum = 0, right_s = 0, unknown = 0, a_sum = 0;
     string line;
 
     while(getline(ipf, line)) {
         istringstream iss(line);
         string ans, request;
         iss >> ans;
+        a_sum++;
         ans.erase(ans.end() - 1);
         if(corrector.getFrequence(ans) == 0)
             unknown++;
 
         while(iss >> request) {
-            sum++;
+            r_sum++;
             auto res = isCorrect(corrector, request, ans);
             if(res.second)
                 right_s++;
@@ -104,48 +105,41 @@ void spellTest(SpellingCorrector& corrector, const string& filename, bool verbos
     auto end = chrono::high_resolution_clock::now();
     chrono::duration<double> diff = end - start;
 
-    cout << calculatePercentage(right_s, sum) << "% of " << sum << " correct ("
-    << calculatePercentage(unknown, sum) << "% unknown) at "
-    << (double) sum / diff.count() << " words per second\n";
+    cout << calculatePercentage(right_s, r_sum) << "% of " << r_sum << " correct ("
+    << calculatePercentage(unknown, a_sum) << "% unknown) at "
+    << (double) r_sum / diff.count() << " words per second\n";
 }
-
 
 int main()
 {
 #ifdef _WIN32
     SetConsoleOutputCP(CP_UTF8);
 #endif
-    //SpellingCorrector corrector;
-
     SpellingCorrectorForZhCN ZHcorrector;
     ZHcorrector.load("test_file/word.txt");
     ZHcorrector.train("test_file/train.zh");
-    //cout << ZHcorrector.ZhCorrect("ysqidong");
+
     singleRequest_ZH(ZHcorrector);
-    //corrector.load("big.txt");
 
-    /*ofstream opf("out.txt", ios::out);
-    for(auto& i : ZHcorrector.ZhCN_Dictionary) {
-        if(i.second > 1 && ZHcorrector.chineseToPinyin[i.first].size() > 1) {
-            opf << i.first << ' '<< i.second << endl;
-            for(auto& j : ZHcorrector.chineseToPinyin[i.first])
-                opf << j << endl;
-        }
-    }*/
+    SpellingCorrector corrector;
+    corrector.load("test_file/big.txt");
 
-    /*Correct("speling", "spelling"); // insert
-    Correct("korrectud", "corrected"); // replace 2
-    Correct("bycycle", "bicycle"); // replace
-    Correct("inconvient", "inconvenient"); // insert 2
-    Correct("arrainged", "arranged"); // delete
-    Correct("peotry", "poetry"); // transpose
-    Correct("peotryy", "poetry"); // transpose + delete
-    Correct("word", "word"); // known
-    Correct("quintessential", ""); // unknown*/
+    spellTest(corrector,"test_file/test1.txt", false);
+    spellTest(corrector, "test_file/test2.txt", false);
 
-    //singleRequest(corrector);
-    //spellTest(corrector,"test1.txt", false);
-    //spellTest(corrector, "test2.txt", false);
+
+    Correct(corrector, "speling", "spelling"); // insert
+    Correct(corrector, "korrectud", "corrected"); // replace 2
+    Correct(corrector, "bycycle", "bicycle"); // replace
+    Correct(corrector, "inconvient", "inconvenient"); // insert 2
+    Correct(corrector, "arrainged", "arranged"); // delete
+    Correct(corrector, "peotry", "poetry"); // transpose
+    Correct(corrector, "peotryy", "poetry"); // transpose + delete
+    Correct(corrector, "word", "word"); // known
+    Correct(corrector, "quintessential", ""); // unknown
+
+    singleRequest(corrector);
+
 
     return 0;
 }
