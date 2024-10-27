@@ -8,11 +8,11 @@
 
 兼容windows，macos，linux平台
 
-结果展示
+# 结果展示
 
 <img width="361" alt="image" src="https://github.com/user-attachments/assets/b7db3079-96dd-4746-a04d-d8a907ec7063"><img width="286" alt="image" src="https://github.com/user-attachments/assets/7e6d7d90-651e-4958-8c56-52690212d898">
 
-具体实现
+# 具体实现
 
 1.SpellingCorrector类
 
