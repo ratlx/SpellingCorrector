@@ -1,4 +1,4 @@
-# 基于贝叶斯算法的中英双文拼写检查器
+# 基于贝叶斯理论的中英双文拼写检查器
 
 启发、借鉴于http://norvig.com/spell-correct.html
 
