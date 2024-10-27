@@ -15,6 +15,7 @@
 具体实现
 
 1.SpellingCorrector类
+
 英文拼写检查器，主要做了对Peter Norvig提出的拼写检查器的c++重构。重构借鉴了https://github.com/felipefarinon/spellingcorrector
 ，在此基础上做了性能上的优化，其他些许改造。
 
