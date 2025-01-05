@@ -38,5 +38,51 @@
 
 4.对于实验结果缺少量化分析
 
+# Chinese-English Bilingual Spell Checker Based on Bayesian Theory
+
+Inspired and referenced from: http://norvig.com/spell-correct.html
+Chinese translation: https://blog.csdn.net/bobten2008/article/details/5478516
+
+If you are interested in the implementation details, it is recommended to read the above materials first.
+
+Compatibility: Windows, macOS, and Linux platforms
+
+# Results Display
+
+<img width="361" alt="image" src="https://github.com/user-attachments/assets/b7db3079-96dd-4746-a04d-d8a907ec7063"><img width="286" alt="image" src="https://github.com/user-attachments/assets/7e6d7d90-651e-4958-8c56-52690212d898">
+
+# Implementation Details
+
+1. SpellingCorrector Class
+
+An English spell checker, primarily a C++ reconstruction of Peter Norvig’s spell checker. The reconstruction was inspired by https://github.com/felipefarinon/spellingcorrector, with performance optimizations and some additional modifications.
+
+2. Pinyin Class
+
+Based on https://github.com/wzhe/GetPinyin. Its primary function is to recognize Chinese characters and retrieve their corresponding Pinyin.
+
+3. SpellingCorrectorForZhCN Class
+
+A Chinese spell checker that privately inherits the SpellingCorrector class.
+
+# Main approach:
+	1.	Convert Pinyin → Chinese spell checker → English spell checker → Correct Pinyin → Chinese spell checker → Chinese text.
+	2.	Added an additional Bayesian layer on top of the original Bayesian algorithm:
+	•	Error Model: Longer Pinyin sequences are prioritized.
+	•	Language Model: Frequencies of Chinese phrases.
+	•	Edit Distance: Insertion is prioritized highest, and deletion is lowest.
+	3.	Search Strategy (using parent class correct):
+	•	Global to local.
+	•	Local to global.
+	4.	load function: Loads words.
+	5.	train function: Counts word frequencies.
+
+Areas for Improvement
+
+	1.	The provided Chinese corpus diverges from everyday conversational language, making it less suitable for input method use cases.
+	2.	Due to my limited expertise, the implementation of calling the parent class’s correct function in the subclass feels clunky, and the performance isn’t optimal (though input methods typically don’t demand high performance?). Regardless, this search strategy is a key area for optimization.
+	3.	Contextual suggestion functionality has not been implemented, which could be another significant improvement area.
+
+
 
 
