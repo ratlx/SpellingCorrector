@@ -87,7 +87,7 @@ Local to global.
 
 5.train function: Counts word frequencies.
 
-Areas for Improvement
+# Areas for Improvement
 
 1.The provided Chinese corpus diverges from everyday conversational language, making it less suitable for input method use cases.
 
