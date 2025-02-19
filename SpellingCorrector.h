@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <map>
+#include <string>
 #include <unordered_map>
 
 class SpellingCorrector
